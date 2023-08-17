@@ -15,23 +15,12 @@
     <hr class="w-25 pb-1" />
     <div class="row m-auto px-5">
         <div class="col-12 col-sm-5">
-            <form>
-                <div class="form-group text-center">
-                    <h5>Agregar Nuevo Usuario</h5>
-                    <hr class="bg-white w-50" />
-                    <div class="d-flex align-items-center justify-content-center">
-                        Nombre:
-                        <input class="form-control d-inline mx-3" required />
-                        Balance:
-                        <input class="form-control d-inline mx-3" required />
-                        <button type="submit" class="btn btn-danger">Agregar</button>
-                    </div>
-                </div>
-            </form>
+            {{> formUsuario}}
             <br />
         </div>
 
         <div class="col-12 col-sm-7">
+
             <form>
                 <div class="form-group text-center">
                     <h5>Realizar una Transferencia</h5>
@@ -57,6 +46,9 @@
                     </div>
                 </div>
             </form>
+
+            {{> formTransferencia}}
+
         </div>
         <div class="col-12 row mt-3 mx-0 px-0">
             {{> tablaUsuarios}}
@@ -76,6 +68,7 @@
         crossorigin="anonymous"></script>
     <script src="https://momentjs.com/downloads/moment.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/js/main.js"></script>
 
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
@@ -187,33 +180,7 @@
         }
     });
 
-    const getUsuarios = async () => {
-        const response = await fetch("http://localhost:3000/usuarios");
-        let data = await response.json();
-        $(".usuarios").html("");
-
-        $.each(data, (i, c) => {
-            $(".usuarios").append(`
-              <tr>
-                <td>${c.nombre}</td>
-                <td>${c.balance}</td>
-                <td>
-                  <button
-                    class="btn btn-warning mr-2"
-                    data-toggle="modal"
-                    data-target="#exampleModal"
-                    onclick="setInfoModal('${c.nombre}', '${c.balance}', '${c.id}')"
-                  >
-                    Editar</button
-                  ><button class="btn btn-danger" onclick="eliminarUsuario('${c.id}')">Eliminar</button>
-                </td>
-              </tr>
-         `);
-
-            $("#emisor").append(`<option value="${c.nombre}">${c.nombre}</option>`);
-            $("#receptor").append(`<option value="${c.nombre}">${c.nombre}</option>`);
-        });
-    };
+    
 
     const eliminarUsuario = async (id) => {
         const response = await fetch(`http://localhost:3000/usuario?id=${id}`, {
