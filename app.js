@@ -3,6 +3,7 @@ import { createPool } from "mysql2/promise";
 import hbs from "hbs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import axios from 'axios'; // Importa Axios
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -44,6 +45,75 @@ app.post("/usuario", async (req, res) => {
     res.status(500).json({ error: "Error al registrar el usuario" });
   }
 });
+
+///////// INICIO  TRANSFERENCIAS
+
+
+// Ruta para realizar una nueva transferencia (con transacción)
+app.post("/transferencia", async (req, res) => {
+  try {
+    const { emisor, receptor, monto } = req.body;
+
+    const connection = await db.getConnection();
+    await connection.beginTransaction();
+
+    // Actualizar el balance del emisor y receptor
+    await connection.query('UPDATE usuarios SET balance = balance - ? WHERE id = ?', [monto, emisor]);
+    await connection.query('UPDATE usuarios SET balance = balance + ? WHERE id = ?', [monto, receptor]);
+
+    // Registrar la transferencia
+    await connection.query('INSERT INTO transferencias (emisor, receptor, monto, fecha) VALUES (?, ?, ?, NOW())', [emisor, receptor, monto]);
+
+    await connection.commit();
+    connection.release();
+
+    res.status(200).json({ message: 'Transferencia realizada exitosamente' });
+  } catch (error) {
+    if (connection) {
+      await connection.rollback();
+      connection.release();
+    }
+    console.error(error);
+    res.status(500).json({ error: 'Error al realizar la transferencia' });
+  }
+});
+
+// Ruta para obtener todas las transferencias
+// app.get("/transferencias", async (req, res) => {
+//   try {
+//     const [transferencias] = await db.query('SELECT * FROM transferencias');
+//     res.json(transferencias);
+//     console.log(transferencias)
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Error al obtener las transferencias' });
+//   }
+// });
+
+app.get("/transferencias", async (req, res) => {
+  try {
+    const query = `
+      SELECT
+        t.*,
+        emisor.nombre AS nombre_emisor,
+        receptor.nombre AS nombre_receptor
+      FROM
+        transferencias t
+        INNER JOIN usuarios emisor ON t.emisor = emisor.id
+        INNER JOIN usuarios receptor ON t.receptor = receptor.id
+    `;
+    const [transferencias] = await db.query(query);
+    res.json(transferencias);
+    console.log(transferencias);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener las transferencias' });
+  }
+});
+
+
+///////// FIN TRANSFERENCIAS
+
 
 app.listen(PORT, () => {
   console.log("Servidor corriendo en el puerto", PORT);

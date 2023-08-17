@@ -53,7 +53,7 @@
                             <input type="text" class="form-control mx-2 w-auto d-inline" id="monto" />
                         </div>
 
-                        <button type="submit" class="btn btn-danger">Relalizar</button>
+                        <button type="submit" class="btn btn-danger">Realizar</button>
                     </div>
                 </div>
             </form>
@@ -62,7 +62,7 @@
             {{> tablaUsuarios}}
 
             {{> tablaTransferencias}}
-            
+
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
@@ -223,19 +223,26 @@
     };
 
     const getTransferencias = async () => {
-        const { data } = await axios.get("http://localhost:3000/transferencias");
-        $(".transferencias").html("");
+        try {
+            const { data } = await axios.get("http://localhost:3000/transferencias");
+            console.log("data", data); // Imprime los datos en la consola para verificar
 
-        data.forEach((t) => {
-            $(".transferencias").append(`
-       <tr>
-         <td> ${formatDate(t[4])} </td>
-         <td> ${t[1]} </td>
-         <td> ${t[2]} </td>
-         <td> ${t[3]} </td>
-       </tr>
-     `);
-        });
+            $(".transferencias").html("");
+
+            data.forEach((transferencia) => {
+                $(".transferencias").append(`
+        <tr>
+          <td>${formatDate(transferencia.fecha)}</td>
+          <td>${transferencia.nombre_emisor}</td>
+          <td>${transferencia.nombre_receptor}</td>
+          <td>${transferencia.monto}</td>
+        </tr>
+      `);
+            });
+        } catch (error) {
+            console.error(error);
+            // Manejar el error aquí si es necesario
+        }
     };
 
     getUsuarios();
