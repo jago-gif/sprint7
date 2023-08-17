@@ -6,16 +6,16 @@ import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-app.set("view engine", "hbs");
-//configuración rutas de partials
-hbs.registerPartials(__dirname + "/views/partials");
+
 
 
 const app = express();
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: false })) // envio de post
 app.use(express.json()) // envío de post
-
+app.set("view engine", "hbs");
+//configuración rutas de partials
+hbs.registerPartials(__dirname + "/views/partials");
 const PORT = 3000;
 
 app.use(express.json());
