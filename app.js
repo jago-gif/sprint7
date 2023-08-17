@@ -7,12 +7,10 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-
-
 const app = express();
 app.use(express.static("public"));
-app.use(express.urlencoded({ extended: false })) // envio de post
-app.use(express.json()) // envío de post
+app.use(express.urlencoded({ extended: false })); // envio de post
+app.use(express.json()); // envío de post
 app.set("view engine", "hbs");
 //configuración rutas de partials
 hbs.registerPartials(__dirname + "/views/partials");
@@ -23,12 +21,12 @@ app.use(express.json());
 const db = createPool({
   host: "localhost",
   user: "root",
-  password: "admin",
+  password: "Daniel92.",
   database: "bancosolar",
 });
 
 app.get("/", (req, res) => {
-res.render("index");
+  res.render("index");
 });
 
 app.post("/usuario", async (req, res) => {
@@ -42,6 +40,16 @@ app.post("/usuario", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al registrar el usuario" });
+  }
+});
+
+app.get("/usuarios", async (req, res) => {
+  try {
+    const [results] = await db.query("SELECT * FROM usuarios");
+    console.log(results);
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({ error: "Error al listar los usuarios" });
   }
 });
 
