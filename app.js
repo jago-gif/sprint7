@@ -3,6 +3,7 @@ import { createPool } from "mysql2/promise";
 import hbs from "hbs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import dotenv from "dotenv";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -15,13 +16,13 @@ app.set("view engine", "hbs");
 //configuración rutas de partials
 hbs.registerPartials(__dirname + "/views/partials");
 const PORT = 3000;
-
+dotenv.config();
 app.use(express.json());
 
 const db = createPool({
   host: "localhost",
   user: "root",
-  password: "Daniel92.",
+  password: process.env.BD_PASSWORD,
   database: "bancosolar",
 });
 
