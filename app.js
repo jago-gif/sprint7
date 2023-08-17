@@ -10,11 +10,10 @@ app.set("view engine", "hbs");
 //configuración rutas de partials
 hbs.registerPartials(__dirname + "/views/partials");
 
-
 const app = express();
 app.use(express.static("public"));
-app.use(express.urlencoded({ extended: false })) // envio de post
-app.use(express.json()) // envío de post
+app.use(express.urlencoded({ extended: false })); // envio de post
+app.use(express.json()); // envío de post
 
 const PORT = 3000;
 
@@ -28,7 +27,7 @@ const db = createPool({
 });
 
 app.get("/", (req, res) => {
-res.render("index");
+  res.render("index");
 });
 
 app.post("/usuario", async (req, res) => {
