@@ -26,7 +26,7 @@ app.use(express.json());
 const db = createPool({
   host: "localhost",
   user: "root",
-  password: process.env.BD_PASSWORD,
+  password: "Daniel92.",
   database: "bancosolar",
 });
 
@@ -67,9 +67,27 @@ app.get("/usuarios", async (req, res) => {
 
 // usuario PUT: Recibe los datos modificados de un usuario registrado y los actualiza.
 
+app.put("/usuario", async (req, res) => {
+  try {
+    const { id, nombre, balance } = req.body;
+    const [results] = await db.query(
+      "update usuarios set nombre = ?, balance = ? where id = ?",
+      [nombre, balance, id]
+    );
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ mensaje: "Usuario no encontrado" });
+    }
+
+    res.status(200).json({ mensaje: "Usuario actualizado" });
+  } catch (error) {
+    res.status(500).json({ error: "Error al actualizar el usuario" });
+  }
+});
+
 // usuario DELETE: Recibe el id de un usuario registrado y lo elimina.
 
-app.put("/usuario", async (req, res) => {
+app.delete("/usuario", async (req, res) => {
   try {
     const { id } = req.body;
     const [results] = await db.query("DELETE FROM usuarios where id= ?", [id]);
