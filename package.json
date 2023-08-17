@@ -1,7 +1,6 @@
 {
   "name": "sprint7",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -15,5 +14,6 @@
     "hbs": "^4.2.0",
     "mysql2": "^3.6.0",
     "path": "^0.12.7"
-  }
+  },
+  "description": ""
 }
