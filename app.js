@@ -4,9 +4,6 @@ import hbs from "hbs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 
-import axios from 'axios'; // Importa Axios
-
-import dotenv from "dotenv";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -20,13 +17,13 @@ app.set("view engine", "hbs");
 //configuración rutas de partials
 hbs.registerPartials(__dirname + "/views/partials");
 const PORT = 3000;
-dotenv.config();
 app.use(express.json());
+
 
 const db = createPool({
   host: "localhost",
   user: "root",
-  password: "Daniel92.",
+  password: process.env.BD_PASSWORD,
   database: "bancosolar",
 });
 
@@ -58,7 +55,7 @@ app.post("/usuario", async (req, res) => {
 app.get("/usuarios", async (req, res) => {
   try {
     const [results] = await db.query("SELECT * FROM usuarios");
-    console.log(results);
+   // console.log(results);
     res.status(200).json(results);
   } catch (error) {
     res.status(500).json({ error: "Error al listar los usuarios" });
@@ -70,13 +67,14 @@ app.get("/usuarios", async (req, res) => {
 app.put("/usuario", async (req, res) => {
   try {
     const { id, nombre, balance } = req.body;
+    console.log(id, nombre, balance);
     const [results] = await db.query(
       "update usuarios set nombre = ?, balance = ? where id = ?",
       [nombre, balance, id]
     );
 
     if (results.affectedRows === 0) {
-      return res.status(404).json({ mensaje: "Usuario no encontrado" });
+      return res.status(204).json({ mensaje: "Usuario no encontrado" });
     }
 
     res.status(200).json({ mensaje: "Usuario actualizado" });
@@ -89,12 +87,11 @@ app.put("/usuario", async (req, res) => {
 
 app.delete("/usuario", async (req, res) => {
   try {
-    const { id } = req.body;
+    const { id } = req.query;
     const [results] = await db.query("DELETE FROM usuarios where id= ?", [id]);
-    console.log(results);
 
     if (results.affectedRows === 0) {
-      return res.status(404).json({ mensaje: "Usuario no encontrado" });
+      return res.status(204).json({ mensaje: "Usuario no encontrado" });
     }
 
     res.status(200).json({ mensaje: "Usuario Eliminado" });
@@ -120,6 +117,8 @@ app.post("/transferencia", async (req, res) => {
     await connection.query('UPDATE usuarios SET balance = balance - ? WHERE id = ?', [monto, emisor]);
     await connection.query('UPDATE usuarios SET balance = balance + ? WHERE id = ?', [monto, receptor]);
 
+    
+    
     // Registrar la transferencia
     await connection.query('INSERT INTO transferencias (emisor, receptor, monto, fecha) VALUES (?, ?, ?, NOW())', [emisor, receptor, monto]);
 
@@ -137,17 +136,6 @@ app.post("/transferencia", async (req, res) => {
   }
 });
 
-// Ruta para obtener todas las transferencias
-// app.get("/transferencias", async (req, res) => {
-//   try {
-//     const [transferencias] = await db.query('SELECT * FROM transferencias');
-//     res.json(transferencias);
-//     console.log(transferencias)
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: 'Error al obtener las transferencias' });
-//   }
-// });
 
 app.get("/transferencias", async (req, res) => {
   try {
@@ -162,16 +150,14 @@ app.get("/transferencias", async (req, res) => {
         INNER JOIN usuarios receptor ON t.receptor = receptor.id
     `;
     const [transferencias] = await db.query(query);
-    res.json(transferencias);
-    console.log(transferencias);
+    res.status(200).json(transferencias);
+   // console.log(transferencias);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al obtener las transferencias' });
   }
 });
 
-
-///////// FIN TRANSFERENCIAS
 
 
 
